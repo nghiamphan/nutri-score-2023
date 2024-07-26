@@ -32,6 +32,7 @@ TEST_DATA_BEVERAGES = [
     [201, 0, 9.0, 0, False, 0.5, 0, 100, ns.BEVERAGES, 4, "C"],  # Orange juice
     [29, 0, 1.2, 0, True, 0.1, 0, 0, ns.BEVERAGES, 5, "C"],  # Soft drink with sweeteners
     [176, 0, 10.6, 0, False, 0, 0, 0, ns.BEVERAGES, 12, "E"],  # Soft drink
+    [0, 0, 0, 0, False, 0, 0, 0, ns.WATER, 0, "A"],  # Water
 ]
 
 

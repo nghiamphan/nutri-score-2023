@@ -4,6 +4,7 @@ RED_MEAT = "red_meat"
 CHEESE = "cheese"
 FATS_NUTS_SEEDS = "fats_oils_nuts_seeds"
 BEVERAGES = "beverages"
+WATER = "water"
 
 # Component names
 ENERGY = "energy"
@@ -43,16 +44,14 @@ FATS_NUTS_SEEDS_CATEGORY_THRESHOLD = [(-6, "A"), (2, "B"), (10, "C"), (18, "D")]
 BEVERAGES_CATEGORY_THRESHOLD = [(1, "B"), (6, "C"), (9, "D")]
 
 # Error Messages
-INVALID_FOOD_TYPE = (
-    f"Invalid food type: {{}}. Must be one of {GENERAL_FODD}, {RED_MEAT}, {CHEESE}, {FATS_NUTS_SEEDS}, {BEVERAGES}"
-)
+INVALID_FOOD_TYPE = f"Invalid food type: {{}}. Must be one of {GENERAL_FODD}, {RED_MEAT}, {CHEESE}, {FATS_NUTS_SEEDS}, {BEVERAGES}, {WATER}."
 
 
 class NutriScoreCalculator:
     def __init__(self):
         self.setup_profiles()
 
-    def setup_profiles(self, profiles: dict = {}):
+    def setup_profiles(self, profiles: dict = {}) -> None:
         """
         Parameters
         ----------
@@ -77,7 +76,7 @@ class NutriScoreCalculator:
         self.sugar_profile = profiles.get(SUGARS, 1)
         self.sodium_profile = profiles.get(SODIUM, 1)
 
-    def get_input(self, nutritions: dict):
+    def get_input(self, nutritions: dict) -> None:
         self.energy = nutritions.get(ENERGY, 0) * self.energy_profile
         self.energy_from_saturates = nutritions.get(ENERGY_FROM_SATURATES, 0) * self.energy_profile
 
@@ -93,7 +92,7 @@ class NutriScoreCalculator:
         self.fiber = nutritions.get(FIBER, 0)
         self.fruit_percentage = nutritions.get(FRUIT_PERCENTAGE, 0)
 
-    def points_by_threshold(self, value: float, threshold_list: list[float]):
+    def points_by_threshold(self, value: float, threshold_list: list[float]) -> int:
         """
         Calculate the points of a specific component based on its threshold list.
         """
@@ -102,7 +101,7 @@ class NutriScoreCalculator:
                 return i
         return len(threshold_list)
 
-    def calculate_negative_points(self, food_type: str):
+    def calculate_negative_points(self, food_type: str) -> int:
         if food_type in [GENERAL_FODD, RED_MEAT, CHEESE]:
             energy_points = self.points_by_threshold(self.energy, ENERGY_THRESHOLD)
             saturated_fat_points = self.points_by_threshold(self.saturated_fat, SATURATED_FAT_THRESHOLD)
@@ -132,7 +131,9 @@ class NutriScoreCalculator:
 
             return energy_points + saturated_fat_points + sugars_points + sodium_points + sweeteners_points
 
-    def calculate_positive_points(self, food_type: str, negative_points: int):
+        return 0
+
+    def calculate_positive_points(self, food_type: str, negative_points: int) -> int:
         fiber_points = self.points_by_threshold(self.fiber, FIBER_THRESHOLD)
 
         if food_type != BEVERAGES:
@@ -158,26 +159,77 @@ class NutriScoreCalculator:
 
         return protein_points + fiber_points + fruit_points
 
-    def calculate(self, nutritions: dict, food_type: str):
+    def calculate(self, nutritions: dict, food_type: str) -> int:
         """
         Calculate the Nutri-Score based on the nutritions and food type.
+
+        Parameters
+        ----------
+        nutritions: dict
+            a dictionary of nutritions.
+
+            Example:
+            {
+                "energy": 100,
+                "saturated_fat": 5,
+                "sugars": 10,
+                "sodium": 0.5,
+                "protein": 1.5,
+                "fiber": 2,
+                "fruit_vegetables_legumes_percentage": 40
+            }
+        food_type: str
+            the type of food.
+
+        Returns
+        -------
+        nutri-score: int
+            the calculated Nutri-Score.
         """
-        if food_type not in [GENERAL_FODD, RED_MEAT, CHEESE, FATS_NUTS_SEEDS, BEVERAGES]:
+        if food_type not in [GENERAL_FODD, RED_MEAT, CHEESE, FATS_NUTS_SEEDS, BEVERAGES, WATER]:
             raise ValueError(INVALID_FOOD_TYPE.format(food_type))
+
+        # By default, water has a Nutri-Score of 0
+        if food_type == WATER:
+            return 0
 
         self.get_input(nutritions)
         negative_points = self.calculate_negative_points(food_type)
         positive_points = self.calculate_positive_points(food_type, negative_points)
         return negative_points - positive_points
 
-    def calculate_category(self, nutritions: dict, food_type: str):
+    def calculate_category(self, nutritions: dict, food_type: str) -> str:
         """
         Calculate the Nutri-Score category based on the nutritions and food type.
+
+        Parameters
+        ----------
+        nutritions: dict
+            a dictionary of nutritions.
+
+            Example:
+            {
+                "energy": 100,
+                "saturated_fat": 5,
+                "sugars": 10,
+                "sodium": 0.5,
+                "protein": 1.5,
+                "fiber": 2,
+                "fruit_vegetables_legumes_percentage": 40
+            }
+        food_type: str
+            the type of food.
+
+        Returns
+        -------
+        category: str
+            the Nutri-Score category, from "A" to "E".
         """
         score = self.calculate(nutritions, food_type)
-        return self.categorize(score, food_type)
+        category = self.categorize(score, food_type)
+        return category
 
-    def categorize(self, score: int, food_type: str):
+    def categorize(self, score: int, food_type: str) -> str:
         """
         Categorize a score into a letter category based on the food type.
 
@@ -187,8 +239,16 @@ class NutriScoreCalculator:
             the calculated Nutri-Score.
         food_type: str
             the type of food.
+
+        Returns
+        -------
+        category: str
+            the Nutri-Score category, from "A" to "E".
         """
-        if food_type in [GENERAL_FODD, RED_MEAT, CHEESE]:
+        # By default, water has a Nutri-Score category of "A"
+        if food_type == WATER:
+            return "A"
+        elif food_type in [GENERAL_FODD, RED_MEAT, CHEESE]:
             category_threshold = GENERAL_FODD_CATEGORY_THRESHOLD
         elif food_type == FATS_NUTS_SEEDS:
             category_threshold = FATS_NUTS_SEEDS_CATEGORY_THRESHOLD
