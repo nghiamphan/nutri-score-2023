@@ -4,9 +4,9 @@ from nutri_score import NutriScoreCalculator
 
 # energy, saturated_fat, sugars, sodium, protein, fiber, fruit_percentage, food_type, expected_score, expected_category
 TEST_DATA_GENERAL_FOOD = [
-    [321, 0, 17.1, 0, 0.2, 1.9, 90, ns.GENERAL_FODD, 0, "A"],  # Apple sauce
-    [0, 0, 0, 84.5, 0, 0, 0, ns.GENERAL_FODD, 20, "E"],  # Sea salt
-    [1700, 0, 100, 0, 0, 0, 0, ns.GENERAL_FODD, 20, "E"],  # Granulated Sugar
+    [321, 0, 17.1, 0, 0.2, 1.9, 90, ns.GENERAL_FOOD, 0, "A"],  # Apple sauce
+    [0, 0, 0, 84.5, 0, 0, 0, ns.GENERAL_FOOD, 20, "E"],  # Sea salt
+    [1700, 0, 100, 0, 0, 0, 0, ns.GENERAL_FOOD, 20, "E"],  # Granulated Sugar
     [489, 0.9, 0, 0.1, 23.7, 0, 0, ns.RED_MEAT, -1, "A"],  # Beef tenderloin steak raw
     [653, 2.8, 0, 0.1, 23.2, 0, 0, ns.RED_MEAT, 1, "B"],  # Pork laoin chop raw
     [908, 7.1, 0, 0.2, 19.3, 0, 0, ns.RED_MEAT, 7, "C"],  # Minced lamb raw
